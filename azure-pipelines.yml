@@ -2,28 +2,47 @@
 # Build a Docker image 
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger:
-- main
+#trigger:
+#- main
 
-resources:
-- repo: self
+#resources:
+#- repo: self
 
+#variables:
+ # tag: '$(Build.BuildId)'
+
+#stages:
+#- stage: Build
+#  displayName: Build image
+#  jobs:  
+#  - job: Build
+#    displayName: Build
+#    pool:
+#      vmImage: 'ubuntu-latest'
+#    steps:
+#    - task: Docker@2
+#      displayName: Build an image
+ #     inputs:
+ #       command: build
+ #       dockerfile: '$(Build.SourcesDirectory)/modules/stuffed/Dockerfile'
+ #       tags: |
+#        $(tag)
+
+
+# Set variables once
 variables:
-  tag: '$(Build.BuildId)'
-
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:  
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/modules/stuffed/Dockerfile'
-        tags: |
-          $(tag)
+  configuration: debug
+  platform: x64
+steps:
+# Use them once
+- task: MSBuild@1
+  inputs:
+    solution: solution1.sln
+    configuration: $(configuration) # Use the variable
+    platform: $(platform)
+# Use them again
+- task: MSBuild@1
+  inputs:
+    solution: solution2.sln
+    configuration: $(configuration) # Use the variable
+    platform: $(platform)
