@@ -32,6 +32,7 @@
 # Set variables once
 variables:
   configuration: debug
+  global_variable: value
   platform: x64
 jobs:
 - job: job1
@@ -42,12 +43,15 @@ jobs:
       solution: solution1.sln
       configuration: $(configuration) # Use the variable
       platform: $(platform)
+      global_variable: $(global_variable)
 # Use them again
   - task: MSBuild@1
     inputs:
       solution: solution2.sln
       configuration: $(configuration) # Use the variable
       platform: $(platform)
+      global_variable: $(global_variable)
+
 - job: job2
   steps:
   - bash: echo $(global_variable)
