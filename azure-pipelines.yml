@@ -2,28 +2,81 @@
 # Build a Docker image 
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
-trigger:
-- main
+#trigger:
+#- main
 
-resources:
-- repo: self
+#resources:
+#- repo: self
 
-variables:
-  tag: '$(Build.BuildId)'
+#variables:
+ # tag: '$(Build.BuildId)'
 
-stages:
-- stage: Build
-  displayName: Build image
-  jobs:  
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Docker@2
-      displayName: Build an image
-      inputs:
-        command: build
-        dockerfile: '$(Build.SourcesDirectory)/modules/stuffed/Dockerfile'
-        tags: |
-          $(tag)
+#stages:
+#- stage: Build
+#  displayName: Build image
+#  jobs:  
+#  - job: Build
+#    displayName: Build
+#    pool:
+#      vmImage: 'ubuntu-latest'
+#    steps:
+#    - task: Docker@2
+#      displayName: Build an image
+ #     inputs:
+ #       command: build
+ #       dockerfile: '$(Build.SourcesDirectory)/modules/stuffed/Dockerfile'
+ #       tags: |
+#        $(tag)
+
+
+# # Set variables once
+# variables:
+#   configuration: debug
+#   global_variable: value
+#   platform: x64
+# jobs:
+# - job: job1
+#   steps:
+# # Use them once
+#   - task: MSBuild@1
+#     inputs:
+#       solution: solution1.sln
+#       configuration: $(configuration) # Use the variable
+#       platform: $(platform)
+#       global_variable: $(global_variable)
+# # Use them again
+#   - task: MSBuild@1
+#     inputs:
+#       solution: solution2.sln
+#       configuration: $(configuration) # Use the variable
+#       platform: $(platform)
+#       global_variable: $(global_variable)
+
+# - job: job2
+#   steps:
+#   - bash: echo $(global_variable)
+#   - bash: echo $(job_variable2)
+#   - bash: echo $GLOBAL_VARIABLE
+
+jobs:
+# Set an output variable from job A
+- job: A
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - powershell: echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$(System.JobId)"
+    name: setvarStep
+  - script: echo $(setvarStep.myOutputVar)
+    name: echovar
+
+# Map the variable into job B
+- job: B
+  dependsOn: A
+  pool:
+    vmImage: 'ubuntu-18.04'
+  variables:
+    myVarFromJobA: $[ dependencies.A.outputs['setvarStep.myOutputVar'] ]  # map in the variable
+                                                                          # remember, expressions require single quotes
+  steps:
+  - script: echo $(myVarFromJobA)
+    name: echovar
