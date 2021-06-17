@@ -64,7 +64,7 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - powershell: echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]this is the value"
+  - powershell: echo "##vso[task.setvariable variable=myOutputVar;isOutput=true]$(System.JobId)"
     name: setvarStep
   - script: echo $(setvarStep.myOutputVar)
     name: echovar
